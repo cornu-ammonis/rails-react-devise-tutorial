@@ -15,7 +15,7 @@ This tutorial covers how to set up a Rails/React app for User authentication usi
 - [Add the new post component and the create action in the rails controller](#add-the-new-post-component-and-the-create-action-in-the-rails-controller)
 - [Configure the new post component to pull csrf token from view and add to headers on fetch request](#configure-the-new-post-component-to-pullcsrf-token-from-view-and-add-to-headers-on-fetch-request)
 
-### 2 ways to use this repository 
+### 2 ways to use this repository
 
 1. Follow along with the tutorial starting with a new rails app.
 2. Clone it and play around with and extend it.
@@ -38,17 +38,39 @@ Text Editor: Visual Studio Code
 
 #### Local set up instructions
 
+##### Mac OSX Ruby/Rails/Postgres setup
+Assuming X-Code developer command line tools and homebrew are already installed
+* Install rvm
+  * ` curl -sSL https://get.rvm.io | bash `
+* Install Ruby 2.6.1
+  * ` rvm install ruby-2.6.1 `
+* Install postgres
+  * ` brew install postgresql `
+* Install services (if not already installed)
+  * ` brew tap homebrew/services `
+* Start postgres
+  * ` brew services start postgresql `
+* once postgres is up and running, do
+  * ` /usr/local/opt/postgres/bin/createuser -s postgres `
+  * ` psql -U postgres `
+  * ` create role tutorial with createdb; `
+  * ` alter role tutorial with login; `
+  * ` create database tutorial; `
+* then run (you might need to ` bundle install ` first)
+  * ` rails db:create `
+  * ` rails db:schema:load `
+
+#### Client/Server setup
   - `git clone git@github.com:DakotaLMartinez/rails-react-devise-tutorial.git`
   - `cd rails-react-devise-tutorial`
   - `yarn install`
-  - `rails db:migrate`
   - (optional) `rails db:seed`
   - `cd client`
   - `yarn install`
   - `cd ..`
   - `rails s`
   - (in new terminal) `./bin/webpack-dev-server`
-  
+
 You should now be able to navigate the site at localhost:3000, log in/log out/sign up and view the react app with the working Post index and Post New routes protected behind a login.
 
 ### Tips before we start
@@ -62,7 +84,7 @@ We'll want to add webpacker to the gemfile
 ```
 gem 'webpacker'
 ```
-and run `bundle install`. Then we'll do 
+and run `bundle install`. Then we'll do
 ```
 rails webpacker:install
 ```
@@ -143,7 +165,7 @@ Finally, we'll add the code we need to mount the react app in the app view:
 <div id="root"></div>
 <%= javascript_pack_tag 'index' %>
 ```
-Now, let's check it out in the browser, if you click the link you should see create-react-app's landing page. **Note**: We'll get much better performance here if we're running the webpack dev server, which you can do by running 
+Now, let's check it out in the browser, if you click the link you should see create-react-app's landing page. **Note**: We'll get much better performance here if we're running the webpack dev server, which you can do by running
 ```
 ./bin/webpack-dev-server
 ```
@@ -182,7 +204,7 @@ Next, let's add some flash messages above the yield tag in our application layou
   <p class="alert"><%= alert %></p>
 ```
 
-Note, I skipped steps 2 and 4 because in our case we've already got a root route, and we're not going to do any customization of the default devise views. If you want to customize the login and signup forms, feel free to run 
+Note, I skipped steps 2 and 4 because in our case we've already got a root route, and we're not going to do any customization of the default devise views. If you want to customize the login and signup forms, feel free to run
 
 ```
 rails g devise:views
@@ -194,7 +216,7 @@ At this point, we'll want to actually create our users:
 rails g devise User
 ```
 
-[Devise](https://github.com/plataformatec/devise) has a bunch of features we can turn on and off, for now I'm going to stick with the defaults. To add our table we'll run 
+[Devise](https://github.com/plataformatec/devise) has a bunch of features we can turn on and off, for now I'm going to stick with the defaults. To add our table we'll run
 
 ```
 rails db:migrate
@@ -206,17 +228,17 @@ Before we hop back into the browser, let's add some simple navigation to our hom
 # app/views/welcome/home.html.erb
 <nav style="text-align: right">
 <% if user_signed_in? %>
-    <%= link_to('Logout', destroy_user_session_path, method: :delete) %>          
+    <%= link_to('Logout', destroy_user_session_path, method: :delete) %>
   <% else %>
     <%= link_to('Login', new_user_session_path)  %> |
-    <%= link_to('Sign Up', new_user_registration_path)  %>  
+    <%= link_to('Sign Up', new_user_registration_path)  %>
   <% end %>
 </nav>
 <h1>Welcome#home</h1>
 <p>If you're logged in, check out <%= link_to "the app", app_path %>!</p>
 ```
 
-Now we can head back to the browser and try creating a new account. 
+Now we can head back to the browser and try creating a new account.
 
 **NOTE**: you'll need to restart your rails server if you had it running while setting up devise
 
@@ -235,7 +257,7 @@ class WelcomeController < ApplicationController
   end
 
   def app
-    
+
   end
 end
 ```
@@ -246,16 +268,16 @@ Now if we try to click on the link to the app page in the browser, we get redire
 
 ## Create a Posts Resource and Some Seeds
 
-Next, let's create a posts resource so we can set up a couple of AJAX requests from our react front end to our rails API. 
+Next, let's create a posts resource so we can set up a couple of AJAX requests from our react front end to our rails API.
 
 ```
 rails g resource post title content:text user:references --no-assets --no-helper
 ```
 
-then we can run 
+then we can run
 ```
 rails db:migrate
-``` 
+```
 to update our database with the posts table.
 
 We'll also want to make sure that we update the user model so it has many posts:
@@ -279,11 +301,11 @@ Finally, let's add some seeds so we've got some posts to work with.
 user = User.first || User.create(email: 'test@test.com', password: 'password', password_confirmation: 'password')
 posts = [
   {
-    title: 'My first post', 
+    title: 'My first post',
     content: 'The start of something special'
   },
   {
-    title: 'My second post', 
+    title: 'My second post',
     content: 'This is really getting good'
   },
   {
@@ -300,18 +322,18 @@ Then we can run those with `rails db:seed`
 
 ## Create a namespace for our API
 
-One thing we probably want to do at this point as well is to create a namespace for our api and make sure that the PostsController falls within it. This is a little extra work now and has the potential to save us large headaches down the road. For more info about why this is a good idea to do now, check out this [article on API versioning](https://paweljw.github.io/2017/07/rails-5.1-api-app-part-3-api-versioning/).  
+One thing we probably want to do at this point as well is to create a namespace for our api and make sure that the PostsController falls within it. This is a little extra work now and has the potential to save us large headaches down the road. For more info about why this is a good idea to do now, check out this [article on API versioning](https://paweljw.github.io/2017/07/rails-5.1-api-app-part-3-api-versioning/).
 
 Practically, a few things will need to change, first the routes will be namespaced, next the controller directory structure will change, and finally the way we define the controller class will be slightly different as well.
 
 First, let's look at the routes:
 ```
-  # config/routes.rb 
+  # config/routes.rb
   # ..
-  namespace :api do 
-    namespace :v1 do 
+  namespace :api do
+    namespace :v1 do
       resources :posts
-    end 
+    end
   end
 ```
 
@@ -329,11 +351,11 @@ app/controllers
 And then update the controller to be defined under the namespaced modules.
 
 ```
-module Api 
+module Api
   module V1
     class PostsController < ApplicationController
     end
-  end 
+  end
 end
 
 ```
@@ -358,18 +380,18 @@ Now, let's create an index PostsController that returns the current user's posts
 
 ```
 # app/controllers/api/v1/posts_controller.rb
-module Api 
+module Api
   module V1
     class PostsController < ApplicationController
-      def index 
+      def index
         if user_signed_in?
           render json: current_user.posts
         else
           render json: {}, status: 401
-        end 
+        end
       end
     end
-  end 
+  end
 end
 ```
 
@@ -384,7 +406,7 @@ cd client
 yarn add react-router-dom react-redux redux
 ```
 
-After that we'll want to create the `PostList` component `client/src/components/PostList.jsx`. This component will make a fetch request within `componentDidMount` and update the state of the component when the promise is fulfilled. 
+After that we'll want to create the `PostList` component `client/src/components/PostList.jsx`. This component will make a fetch request within `componentDidMount` and update the state of the component when the promise is fulfilled.
 
 ```
 componentDidMount() {
@@ -465,7 +487,7 @@ In order to test this out, we'll need to add react router to the `client/src/App
 // client/src/App.js
 import React from 'react';
 import {
-  HashRouter as Router, 
+  HashRouter as Router,
   Route
 } from 'react-router-dom';
 import PostList from './components/PostList';
@@ -492,14 +514,14 @@ Notice that the url when the app is loaded is now `localhost:3000/app#/`. All of
 
 ## Add the New Post Component and the Create Action in the Rails Controller
 
-Now we want to allow users to create new posts. We've already got react router set up, so we'll need to add the `NewPost` component and then have it post to `api/v1/posts` for which we'll build a `create` action in our `PostsController`. 
+Now we want to allow users to create new posts. We've already got react router set up, so we'll need to add the `NewPost` component and then have it post to `api/v1/posts` for which we'll build a `create` action in our `PostsController`.
 
-Let's start by building out the controller layer. We'll need to define our strong parameters to whitelist the `:title` and `:content` attributes. 
+Let's start by building out the controller layer. We'll need to define our strong parameters to whitelist the `:title` and `:content` attributes.
 
 ```
 # app/controllers/api/v1/posts_controller.rb
 # ...
-def post_params 
+def post_params
   params.require(:post).permit(:title, :content)
 end
 ```
@@ -508,14 +530,14 @@ Next, we'll again check if the user is authenticated before creating the post an
 ```
 # app/controllers/api/v1/posts_controller.rb
 # ...
-def create 
-  if user_signed_in? 
+def create
+  if user_signed_in?
     if post = current_user.posts.create(post_params)
-      render json: post, status: :created 
-    else 
+      render json: post, status: :created
+    else
       render json: post.errors, status: 400
     end
-  else 
+  else
     render json: {}, status: 401
   end
 end
@@ -649,7 +671,7 @@ When we're done it should look like this:
 // client/src/App.js
 import React from 'react';
 import {
-  HashRouter as Router, 
+  HashRouter as Router,
   Route
 } from 'react-router-dom';
 import PostList from './components/PostList';
@@ -678,4 +700,4 @@ Now we're ready to try this out! Let's fire up our rails server and our webpack 
 
 Great job getting through this tutorial!  Hopefully this gives you an idea of how you could create a react app that takes advantage of user accounts using session cookies. Before I leave you here, I just wanted to discuss some potential trade offs with this approach and alternatives you might also consider.
 
-Using cookie based authentication is fine if you're planning on only interacting with this API from your current react app within Rails, and not say from a mobile application or another web application. The reason for this is that cookies are domain specific, so if you need to enable access to your API from other domains, you'll want to take another approach like JWT or OAuth2 for authentication. 
+Using cookie based authentication is fine if you're planning on only interacting with this API from your current react app within Rails, and not say from a mobile application or another web application. The reason for this is that cookies are domain specific, so if you need to enable access to your API from other domains, you'll want to take another approach like JWT or OAuth2 for authentication.
