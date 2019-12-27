@@ -37,6 +37,19 @@ OS: Mac OS 10.12.6
 Text Editor: Visual Studio Code
 
 #### Local set up instructions
+
+##### Mac OSX Ruby/Rails/Postgres setup
+Assuming X-Code developer command line tools and homebrew are already installed
+* Install rvm
+  * ` curl -sSL https://get.rvm.io | bash `
+* Install Ruby 2.6.1
+  * ` rvm install ruby-2.6.1 `
+* Install postgres
+  * ` brew install postgresql `
+* Install services (if not already installed)
+  * ` brew tap homebrew/services `
+* Start postgres
+  * ` brew services start postgresql `
 * once postgres is up and running, do
   * ` /usr/local/opt/postgres/bin/createuser -s postgres `
   * ` psql -U postgres `
@@ -47,11 +60,10 @@ Text Editor: Visual Studio Code
   * ` rails db:create `
   * ` rails db:schema:load `
 
-
+#### Client/Server setup
   - `git clone git@github.com:DakotaLMartinez/rails-react-devise-tutorial.git`
   - `cd rails-react-devise-tutorial`
   - `yarn install`
-  - `rails db:migrate`
   - (optional) `rails db:seed`
   - `cd client`
   - `yarn install`
